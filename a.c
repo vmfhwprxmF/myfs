@@ -26,9 +26,7 @@ typedef struct
 }i_node[512];
 typedef struct
 {
-	struct datas *before_data; 	// 자기참조
 	char data[128];				// 128바이트
-	struct datas *next_data; 	// 자기참조
 }data_block[1024];
 typedef struct
 {
