@@ -3,38 +3,59 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<time.h>
+
+static int z=1;	
+
+char bootblock[2];  //  부트블럭은 16비트 고정
 typedef struct
 {
-	int direct_num;		//직접
-	int single_num;		//1차간접
-	int double_num;		//2차간접
-}data_num;
+	int direct;		//직접
+	struct data *indirect;  //간접 자기참조구조체
+}data;
 typedef struct 
 {
-	int c_i_bit[9];		// i-node 사용여부 (512)
-	int c_d_bit[10];	// data block 사용여부 (1024)
+	int c_i_bit[512];		// i-node 사용여부 (512)
+	int c_d_bit[1024];	// data block 사용여부 (1024)
 }supers;
 typedef struct 
 {
-	struct i_node *before_inode;	// 자기참조
 	_Bool file; 					// 0-file, 1-dir
-	time_t now;					// 생성시간
+	time_t now;						// 생성시간
 	int size;     					// 파일크기
-	data_num a;
-	struct i_node *next_inode;		// 자기참조
-}i_node;
+	data num;						// 데이터 블럭 번호
+}i_node[512];
 typedef struct
 {
 	struct datas *before_data; 	// 자기참조
-	char data;
+	char data[128];				// 128바이트
 	struct datas *next_data; 	// 자기참조
-}datas;
+}data_block[1024];
 typedef struct
 {
 	char l_link;	// 왼쪽 파일 링크
 	char data;		// 본 파일 정보(?)
 	char r_link;		// 오른쪽 파일 링크
 }binary_tree;
+
+/*
+i_node get_f_inode(i_node *)     //파일의 inode생성
+{
+	z++
+	i_node[z].file = 0;
+	i_node[z].now = time(NULL);
+	i_node[z].size = ;
+	i_node[z].a,direct_num = ;
+}
+i_node get_d_inode(i_node *)     //디렉터리의 inode생성
+{
+	z++
+	i_node[z].file = 1;
+	i_node[z].now = time(NULL);
+	i_node[z].size = ;
+	i_node[z].a,direct_num = ;
+}
+*/
+
 int main()
 {
 	FILE *ifp;	//myfs파일 포인터
@@ -90,4 +111,4 @@ int main()
 			}			
 		}	
 	}
-}	
+}
