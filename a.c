@@ -4,25 +4,29 @@
 #include<stdbool.h>
 #include<time.h>
 
-static int z=1;	
-
 char bootblock[2];  //  부트블럭은 16비트 고정
-typedef struct
+/*typedef struct
 {
 	int direct;		//직접
 	struct data *indirect;  //간접 자기참조구조체
 }data;
+*/
 typedef struct 
 {
-	int c_i_bit[512];		// i-node 사용여부 (512)
-	int c_d_bit[1024];	// data block 사용여부 (1024)
+	int c_i_bi[16];		// i-node 사용여부 (512)
+	int c_d_bit[32];	// data block 사용여부 (1024)
 }supers;
 typedef struct 
 {
 	_Bool file; 					// 0-file, 1-dir
 	time_t now;						// 생성시간
 	int size;     					// 파일크기
-	data num;						// 데이터 블럭 번호
+	//data num;						// 데이터 블럭 번호
+/*
+	int *direct;
+	int *s_indirect;
+	int *d-indirect;
+ */
 }i_node[512];
 typedef struct
 {
@@ -30,28 +34,37 @@ typedef struct
 }data_block[1024];
 typedef struct
 {
-	char l_link;	// 왼쪽 파일 링크
-	char data;		// 본 파일 정보(?)
-	char r_link;		// 오른쪽 파일 링크
+	char *l_link;	// 왼쪽 파일 링크
+	char name[4];		// 본 파일 이름
+	char *r_link;		// 오른쪽 파일 링크
 }binary_tree;
 
+
 /*
-i_node get_f_inode(i_node *)     //파일의 inode생성
+
+   슈퍼블럭 inode 비트열 찾기
+   슈퍼블럭 data 비트열 찾기
+
+
+i_node get_f_inode(char z)     //파일의 inode생성
 {
-	z++
 	i_node[z].file = 0;
 	i_node[z].now = time(NULL);
 	i_node[z].size = ;
 	i_node[z].a,direct_num = ;
 }
-i_node get_d_inode(i_node *)     //디렉터리의 inode생성
+i_node get_d_inode(char z)     //디렉터리의 inode생성
 {
-	z++
 	i_node[z].file = 1;
 	i_node[z].now = time(NULL);
 	i_node[z].size = ;
 	i_node[z].a,direct_num = ;
 }
+
+	inode삭제
+	비트열 수정
+	data삭제
+	비트열 수정
 */
 
 int main()
