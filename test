@@ -4,7 +4,7 @@
   
    typedef struct b_tree
    {
-      char name;
+      char name[4];
       struct b_tree *left;
            struct b_tree *right;
   }b_tree;
