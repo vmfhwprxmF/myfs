@@ -20,7 +20,7 @@
  
               while(p!=NULL)
           {
-                      printf("%c",p->name);
+                      printf("%s",p->name);
                       p=p->right;}
  
       return 0;}
