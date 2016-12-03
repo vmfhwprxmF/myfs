@@ -1,0 +1,26 @@
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <malloc.h>
+  
+   typedef struct b_tree
+   {
+      char name[4];
+      struct b_tree *left;
+           struct b_tree *right;
+  }b_tree;
+  int main(){
+      struct b_tree *p;
+      b_tree a0={'/',NULL,NULL},a1={'1',NULL,NULL}, a2={'2',NULL,NULL}, a3={'3',NULL,NULL}, a4={'4',NULL,NULL}, a5={'5',NULL,NULL}, a6={'6',NULL,NULL}; // 파일 만들 때 동적할당주소를 left or right 값에 넣어서 할 것
+      a0.left=&a1;
+      a1.right=&a2;
+      a2.right=&a3;
+      a3.right=&a4; // 예시로 파일 존재할 경우 출력
+  if(a0.left!=NULL)
+     p=&a1;          //부모 디렉터리 왼쪽 값이 NULL이 아닐경우 하위 p값에 왼쪽 주소를 삽입 해줌
+ 
+              while(p!=NULL)
+          {
+                      printf("%c",p->name);
+                      p=p->right;}
+ 
+      return 0;}
