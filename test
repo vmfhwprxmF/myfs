@@ -1,8 +1,147 @@
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <malloc.h>
-  
-   typedef struct b_tree
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <malloc.h>
+  #include <string.h>
+ 
+  typedef struct prompt{
+          char name[4];
+          struct prompt * next;
+  }prompt;   // prompt
+ 
+  prompt first={"/",NULL};
+  prompt * pm_p;
+  prompt * pm_head;
+ 
+  typedef struct b_tree{
+      char name[4];
+      struct b_tree *left;
+      struct b_tree *right;
+  }b_tree;
+  b_tree *cwd; // 현재 디렉터리 주소를 저장하는 곳
+ 
+  b_tree root; // root 디렉터리 전역
+ 
+  prompt* pf;
+  b_tree * head;
+  b_tree * p;
+  char name_save[4]; //생성 시 이름 저장할 공간
+  void mkdir(struct b_tree *,char *);
+  void mkfile(struct b_tree *, char *);
+  void mycd(struct b_tree *, char *);
+ 
+  int main(){
+      first.next=(struct prompt *)calloc(1,sizeof(struct prompt));
+      pf=first.next;
+  }
+ 
+  void mkfile(struct b_tree *a,char *name) //현재 디렉터리 주소를 인자로 받는다 이름도 생성할 파일 이름도 받는다.
+  {
+      if(a->left==NULL)
+      {
+              p=(struct b_tree *)malloc(sizeof(struct b_tree));
+              strcpy(p->name,name);
+              a->left=p;
+      }
+      else
+      {
+              head=a->left;
+              while(head->right!=NULL)
+              {
+                      head=head->right;
+              }
+              p=(struct b_tree *)malloc(sizeof(struct b_tree));
+              strcpy(p->name,name);
+              head->right=p;
+      }
+  }
+ 
+  void mkdir(struct b_tree *a,char *name)  //디렉터리와 파일을 어떻게 구별해야할지 아직 생각 못함
+  {
+     if(a->left==NULL)
+      {
+              p=(struct b_tree *)malloc(sizeof(struct b_tree));
+              strcpy(p->name,name);
+              a->left=p;
+      }
+      else
+      {
+              head=a->left;
+              while(head->right!=NULL)
+              {
+ 
+                      head=head->right;
+              }
+              p=(struct b_tree *)malloc(sizeof(struct b_tree));
+              strcpy(p->name,name);
+              head->right=p;
+      }
+  }
+ 
+  void mycd(struct b_tree *a,char *name)
+  {
+          pm_p=first.next;
+ 
+      if(name==NULL) //인자가 없을 경우 루트로 돌아가야함
+      {
+         free(first.next)
+         first.next=(struct prompt *)calloc(1,sizeof(struct prompt)); // 연결 후 이름을 NULL 로 초기화 해줘야함
+         cwd=&root;
+ 
+         return;}
+      if(a->left==NULL)
+      {printf("이동할 디렉터리가 없습니다.");
+              return;}
+      else
+        {
+          head=a->left;
+          if(head->right==NULL)
+          {
+                  if((strcmp(head->name,name))==0)
+                 {
+                     cwd=head;
+                     pm_p->next=(struct prompt *)malloc(sizeof(struct prompt));
+                     strcpy(pm_p->name,name);
+                 }
+                 else
+                         printf("이동할 디렉터리가 없습니다");
+             return;
+         }
+         while(head->right!=NULL)
+         {
+                 if((strcmp(head->name,name))==0){
+                         cwd=head;                                // 현재 디렉터리의 정보를 수정해준다.
+                         while(pm_p->next!=NULL)
+                           pm_p=pm_p->next;
+                           pm_p->next=(struct prompt *)malloc(sizeof(struct prompt)); // pwd 와 prompt 를 위해서 내용을 저장해 주는 구조체에 이름을 넣어주는 작업이다.
+                         strcpy(pm_p->name,name);
+
+                         break;}
+        }
+     }
+ }
+ void promptf()
+ {
+     printf("[/");
+     while(pf->next!=NULL)
+     {
+       printf("%s",pf->name);
+       printf("/");
+       pf=pf->next;
+     }
+     printf("]$");
+ }
+ void mypwd(void)
+ {
+         while(pf->next!=NULL)
+         {
+           printf("/");
+           printf("%s",pf->name);
+           pf=pf->next;}
+
+ }
+ 
+ //밑은 myls 문자순서대로 출력하도록 수정해야함
+typedef struct b_tree
    {
       char name[4];
       struct b_tree *left;
