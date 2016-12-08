@@ -140,26 +140,63 @@
 
  }
  
- //밑은 myls 문자순서대로 출력하도록 수정해야함
-typedef struct b_tree
-   {
-      char name[4];
-      struct b_tree *left;
-           struct b_tree *right;
-  }b_tree;
-  int main(){
-      struct b_tree *p;
-      b_tree a0={'/',NULL,NULL},a1={'1',NULL,NULL}, a2={'2',NULL,NULL}, a3={'3',NULL,NULL}, a4={'4',NULL,NULL}, a5={'5',NULL,NULL}, a6={'6',NULL,NULL}; // 파일 만들 때 동적할당주소를 left or right 값에 넣어서 할 것
-      a0.left=&a1;
-      a1.right=&a2;
-      a2.right=&a3;
-      a3.right=&a4; // 예시로 파일 존재할 경우 출력
-  if(a0.left!=NULL)
-     p=&a1;          //부모 디렉터리 왼쪽 값이 NULL이 아닐경우 하위 p값에 왼쪽 주소를 삽입 해줌
- 
-              while(p!=NULL)
-          {
-                      printf("%s",p->name);
-                      p=p->right;}
- 
-      return 0;}
+ 161 void rmfile(struct b_tree *a,char *name)
+162 {
+163         if((strcmp(a->left,name))==0)
+164         {
+165                 p=a->left;
+166             if(p->right==NULL)
+167                 {free(p);
+168                  a->left=NULL;}
+169             else
+170             {a->left=p->right;
+171                 free(p);}
+172         }
+173         else
+174          {
+175             p=a->left;
+176            while((strcmp(p->name,name)!=0))
+177             {
+178                 prev=p;
+179                 p=p->right;
+180             }
+181            if(p->right==NULL)
+182                 free(p);
+183            else
+184             {
+185                 prev->right=p->right;
+186                 free(p);
+187             }
+188          }
+189 }
+190
+
+ 191 void myls(struct b_tree *a)
+192 {
+193         int i=0,c=0;
+194
+195         if(a->left==NULL)
+196                 return;
+197         else
+198         {
+199             p=a->left;
+200             while(p->right!=NULL)
+201             {
+202                 strcpy(name_save[i],p->name);
+203                 p=p->right;
+204                 i++;
+205             }
+206
+207      qsort(name_save,i,sizeof(name_save[0]),compare_word);
+208         for(c;c<=i;c++)
+209             printf("%s\n",name_save[c]);
+210         memset(name_save,0,sizeof(name_save));
+211     }
+212 }
+213
+214 int compare_word(const void *p,const void *q){
+215         return strcmp(*(char **)p,*(char **)q);
+216 }
+217
+218
+
