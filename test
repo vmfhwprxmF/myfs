@@ -1,202 +1,409 @@
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <malloc.h>
-  #include <string.h>
+  1 #include <stdio.h>
+  2 #include <stdlib.h>
+  3 #include <malloc.h>
+  4 #include <string.h>
+  5
+  6 typedef struct prompt{
+  7         char name[5];
+  8         struct prompt * next;
+  9 }prompt;   // prompt
+ 10
+ 11 prompt first={"/",NULL};
+ 12 prompt * pm_p=NULL;
+ 13 prompt * pm_head=NULL;
+ 14
+ 15 typedef struct b_tree{
+ 16     char name[5];
+ 17     struct b_tree *left;
+ 18     struct b_tree *right;
+ 19 }b_tree;
+ 20
+ 21 typedef struct DATA_BLOCK{
+ 22     char data[128];
+ 23 }DATA_BLOCK;
+ 24 DATA_BLOCK data_block;
+ 25
+ 26 b_tree *cwd; // 현재 디렉터리 주소를 저장하는 곳
+ 27 b_tree *cwd_prev=NULL;
+ 28 b_tree *cwd_tmp=NULL;
+ 29 b_tree root; // root 디렉터리 전역
+ 30 b_tree *tmp;
+ 31 b_tree *tmp_2;
+ 32 b_tree *tmp_file;
+ 33 prompt* pf=NULL;
+ 34 b_tree * head=NULL;
+ 35 b_tree * prev=NULL;
+ 36 b_tree * p=NULL;
+ 37 char name_save[20][5]={NULL}; //사전순을 위한 이름 저장 공간
+ 38 char name2[5]={NULL};
+ 39 void mkdir(struct b_tree *,char *);
+ 40 void mkfile(struct b_tree *, char *);
+ 41 void mycd(struct b_tree *, char *);
+ 42 void rmfile(struct b_tree *, char *);
+ 43 int compare_word(const void *,const void *);
+ 44 void mypwd(void);
+ 45 void promp(void);
+ 46 void myls(struct b_tree *);
  
-  typedef struct prompt{
-          char name[4];
-          struct prompt * next;
-  }prompt;   // prompt
- 
-  prompt first={"/",NULL};
-  prompt * pm_p;
-  prompt * pm_head;
- 
-  typedef struct b_tree{
-      char name[4];
-      struct b_tree *left;
-      struct b_tree *right;
-  }b_tree;
-  b_tree *cwd; // 현재 디렉터리 주소를 저장하는 곳
- 
-  b_tree root; // root 디렉터리 전역
- 
-  prompt* pf;
-  b_tree * head;
-  b_tree * p;
-  char name_save[4]; //생성 시 이름 저장할 공간
-  void mkdir(struct b_tree *,char *);
-  void mkfile(struct b_tree *, char *);
-  void mycd(struct b_tree *, char *);
- 
-  int main(){
-      first.next=(struct prompt *)calloc(1,sizeof(struct prompt));
-      pf=first.next;
-  }
- 
-  void mkfile(struct b_tree *a,char *name) //현재 디렉터리 주소를 인자로 받는다 이름도 생성할 파일 이름도 받는다.
-  {
-      if(a->left==NULL)
-      {
-              p=(struct b_tree *)malloc(sizeof(struct b_tree));
-              strcpy(p->name,name);
-              a->left=p;
-      }
-      else
-      {
-              head=a->left;
-              while(head->right!=NULL)
-              {
-                      head=head->right;
-              }
-              p=(struct b_tree *)malloc(sizeof(struct b_tree));
-              strcpy(p->name,name);
-              head->right=p;
-      }
-  }
- 
-  void mkdir(struct b_tree *a,char *name)  //디렉터리와 파일을 어떻게 구별해야할지 아직 생각 못함
-  {
-     if(a->left==NULL)
-      {
-              p=(struct b_tree *)malloc(sizeof(struct b_tree));
-              strcpy(p->name,name);
-              a->left=p;
-      }
-      else
-      {
-              head=a->left;
-              while(head->right!=NULL)
-              {
- 
-                      head=head->right;
-              }
-              p=(struct b_tree *)malloc(sizeof(struct b_tree));
-              strcpy(p->name,name);
-              head->right=p;
-      }
-  }
- 
-  void mycd(struct b_tree *a,char *name)
-  {
-          pm_p=first.next;
- 
-      if(name==NULL) //인자가 없을 경우 루트로 돌아가야함
-      {
-         free(first.next)
-         first.next=(struct prompt *)calloc(1,sizeof(struct prompt)); // 연결 후 이름을 NULL 로 초기화 해줘야함
-         cwd=&root;
- 
-         return;}
-      if(a->left==NULL)
-      {printf("이동할 디렉터리가 없습니다.");
-              return;}
-      else
-        {
-          head=a->left;
-          if(head->right==NULL)
-          {
-                  if((strcmp(head->name,name))==0)
-                 {
-                     cwd=head;
-                     pm_p->next=(struct prompt *)malloc(sizeof(struct prompt));
-                     strcpy(pm_p->name,name);
-                 }
-                 else
-                         printf("이동할 디렉터리가 없습니다");
-             return;
-         }
-         while(head->right!=NULL)
-         {
-                 if((strcmp(head->name,name))==0){
-                         cwd=head;                                // 현재 디렉터리의 정보를 수정해준다.
-                         while(pm_p->next!=NULL)
-                           pm_p=pm_p->next;
-                           pm_p->next=(struct prompt *)malloc(sizeof(struct prompt)); // pwd 와 prompt 를 위해서 내용을 저장해 주는 구조체에 이름을 넣어주는 작업이다.
-                         strcpy(pm_p->name,name);
-
-                         break;}
-        }
-     }
- }
- void promptf()
- {
-     printf("[/");
-     while(pf->next!=NULL)
-     {
-       printf("%s",pf->name);
-       printf("/");
-       pf=pf->next;
-     }
-     printf("]$");
- }
- void mypwd(void)
- {
-         while(pf->next!=NULL)
-         {
-           printf("/");
-           printf("%s",pf->name);
-           pf=pf->next;}
-
- }
- 
- 161 void rmfile(struct b_tree *a,char *name)
-162 {
-163         if((strcmp(a->left,name))==0)
-164         {
-165                 p=a->left;
-166             if(p->right==NULL)
-167                 {free(p);
-168                  a->left=NULL;}
-169             else
-170             {a->left=p->right;
-171                 free(p);}
-172         }
-173         else
-174          {
-175             p=a->left;
-176            while((strcmp(p->name,name)!=0))
-177             {
-178                 prev=p;
-179                 p=p->right;
-180             }
-181            if(p->right==NULL)
-182                 free(p);
-183            else
-184             {
-185                 prev->right=p->right;
-186                 free(p);
-187             }
-188          }
-189 }
-190
-
- 191 void myls(struct b_tree *a)
-192 {
-193         int i=0,c=0;
-194
-195         if(a->left==NULL)
-196                 return;
-197         else
-198         {
-199             p=a->left;
-200             while(p->right!=NULL)
-201             {
-202                 strcpy(name_save[i],p->name);
-203                 p=p->right;
-204                 i++;
-205             }
-206
-207      qsort(name_save,i,sizeof(name_save[0]),compare_word);
-208         for(c;c<=i;c++)
-209             printf("%s\n",name_save[c]);
-210         memset(name_save,0,sizeof(name_save));
-211     }
-212 }
-213
-214 int compare_word(const void *p,const void *q){
-215         return strcmp(*(char **)p,*(char **)q);
-216 }
-217
-218
+ 51 int main(){
+ 52     root.type=0;
+ 53     cwd=&root;
+ 54     root.left=NULL;
+ 55     strcpy(root.name,"/");
+ 56     first.next=(struct prompt *)calloc(1,sizeof(struct prompt));
+ 57     pm_p=first.next;
+ 58     pf=&first;
+ 59     char c;
+ 60     int i,comcount,fr,ee,count,down;
+ 61     promp();
+ 62     while(1)
+ 63     {   head=NULL;
+ 64         char com[5][10]={NULL};
+ 65         char com_tmp[2][20]={NULL};
+ 66         comcount=0;
+ 67         for(i=0;i<4;i++)
+ 68         {
+ 69                 scanf("%s",com[i]);
+ 70                 c=getchar();
+ 71                 if(c=='\n')
+ 72                         break;
+ 73                 comcount++;
+ 74         }
+ 75         if(strcmp(com[0],"myls")==0)
+ 76         {   if(com[1][0]!=NULL)// myls 뒤에 디렉터리 이름이 추가로 올경우
+ 77                 {
+ 78                     tmp=cwd->left;
+ 79                     while(strcmp(tmp->name,com[1])!=0)
+ 80                             tmp=tmp->right;
+ 81                     myls(tmp);
+ 82                 }
+ 83             else
+  84                 myls(cwd);}
+ 85         if(strcmp(com[0],"mypwd")==0)
+ 86                 mypwd();
+ 87         if(strcmp(com[0],"mkdir")==0)
+ 88         {
+ 89             strcpy(&name2,com[1]);
+ 90             mkdir(cwd,&name2);
+ 91         }
+ 92
+ 93         if(strcmp(com[0],"mkfile")==0)  //파일 생성
+ 94         {
+ 95             down=0;
+ 96             for(i=0;i<10;i++)                    //하위 디렉터리의 파일 생성할 경우
+ 97                 if(com[1][i]=='/')
+ 98                 {
+ 99                  down=1;
+100                  break;
+101                 }
+102             if(down)
+103             {
+104                 for(count=0;count<i;count++)
+105                 com_tmp[0][count]=com[1][count];
+106
+107                 for(count=0;count<5;count++)
+108                 {
+109                 com_tmp[1][count]=com[1][i+1];
+110                  i++;
+111                 }
+112                 strcpy(&name2,com_tmp[1]);
+113                 tmp=cwd->left;
+114                 while(strcmp(tmp->name,com_tmp[0])!=0)
+115                         tmp=tmp->right;
+116                 mkfile(tmp,&name2);
+117             }
+118             else                               //현재 디렉터리의 파일 생성할 경우
+119             {
+120             strcpy(&name2,com[1]);
+121             mkfile(cwd,&name2);
+122             }
+123         }
+124
+125         if(strcmp(com[0],"rmfile")==0)  //만약 파일과 디렉터리가 생성되어 있지 않을 경우 오류 뜨므로 꼭 생성하고 삭제 바람.
+126         {
+127             down=0;                            //  하위디렉터리의 파일 삭제할 경우
+128             for(i=0;i<10;i++)
+129                     if(com[1][i]=='/')
+130                     {
+131                             down=1;
+132                             break;
+133                     }
+134             if(down)
+135             {
+136                     for(count=0;count<i;count++)
+137                             com_tmp[0][count]=com[1][count];
+138                     for(count=0;count<5;count++)
+139                     {
+140                     com_tmp[1][count]=com[1][i+1];
+141                     i++;
+142                     }
+143                     strcpy(&name2,com_tmp[1]);
+144                     tmp=cwd->left;
+145                     while(strcmp(tmp->name,com_tmp[0])!=0)
+146                                     tmp=tmp->right;
+147                     rmfile(tmp,&name2);
+148                     }
+149             else
+150             {
+151             strcpy(&name2,com[1]);        //현재 디렉터리의 파일 삭제할 경우
+152             rmfile(cwd,&name2);
+153             }
+154         }
+155         if(strcmp(com[0],"mycd")==0)
+156         {   strcpy(&name2,com[1]);
+157             mycd(cwd,&name2);
+158         }
+159         /* mymv 실패
+160         if(strcmp(com[0],"mymv")==0)     //생성안된 파일을 이름 변경 하거나 없는 파일을 디렉터리에 추가시키려할 경우 오류 발생 주의바람
+161         {   count=0;
+162             tmp=cwd->left;
+163             while(strcmp(tmp->name,com[1])!=0)
+164                     tmp=tmp->right;
+165
+166             tmp_file=tmp;
+167
+168             tmp=cwd->left;
+169
+170             while(tmp->right!=0)
+171             {
+172                 if(strcmp(tmp->name,com[2])==0)
+173             {
+174                     mymv_2(tmp_file,tmp);
+175                     count=1;
+176                     break;
+177             }
+178                 tmp=tmp->right;
+179             }
+180             if(count!=1)
+181             {
+182                 mymv_1(tmp_file,com[2]);
+183             }
+184         }           */
+185
+186         if(strcmp(com[0],"byebye")==0)
+187                 break;
+188     printf("\n");
+189     promp();
+190     }
+191     return 0;
+192 }
+193
+194 void mkfile(struct b_tree *a,char *name) //현재 디렉터리 주소를 인자로 받는다 이름도 생성할 파일 이름도 받는다.
+195 {
+196     if(a->left==NULL)
+197     {
+198             p=(struct b_tree *)calloc(1,sizeof(struct b_tree));
+199             strcpy(p->name,name);
+200             a->left=p;
+201     }
+202     else
+203     {
+204             head=a->left;
+205             while(head->right!=NULL)
+206             {
+207                     head=head->right;
+208             }
+209             p=(struct b_tree *)calloc(1,sizeof(struct b_tree));
+210             strcpy(p->name,name);
+211             head->right=p;
+212     }
+213 }
+214
+215 void mkdir(struct b_tree *a,char *name)  //디렉터리와 파일을 어떻게 구별해야할지 아직 생각 못함
+216 {
+217     p=(struct b_tree *)calloc(1,sizeof(struct b_tree));
+218     if(a->left==NULL)
+219     {
+220             strcpy(p->name,name);
+221             a->left=p;
+222     }
+223     else
+224     {
+225             head=a->left;
+226             while(head->right!=NULL)
+227             {
+228
+229                     head=head->right;
+230             }
+231             strcpy(p->name,name);
+232             head->right=p;
+233     }
+234 }
+235
+236 void mycd(struct b_tree *a,char *name)
+237 {
+238
+239     if((*name==NULL)||(strcmp(name,"/")==0)) //인자가 없을 경우 루트로 돌아가야함혹은 / 로 돌아갈 때
+240     {
+241        pm_p=first.next;
+242        while(pm_p->next!=0)
+243        {     pm_head=pm_p;
+244              pm_p=pm_p->next;
+245              free(pm_head);}
+246        free(pm_p);
+247
+248        first.next=(struct prompt *)calloc(1,sizeof(struct prompt)); // 연결 후 이름을 NULL 로 초기화 해줘야함calloc 을 사용한 이유
+249        cwd=&root;
+250        pm_p=first.next;
+251        return;
+252     }
+253     else
+254       {
+255         head=a->left;
+256         if(head==NULL)
+257         {printf("이동할 디렉터리가 없습니다");
+258             return;}
+259         pm_p=first.next;
+260         if(head->right==NULL)
+261         {
+262                 if((strcmp(head->name,name))==0)
+263                 {
+264                     cwd=head;
+265                     while(pm_p->next!=NULL)
+266                             pm_p=pm_p->next;
+267                     pm_p->next=(struct prompt *)calloc(1,sizeof(struct prompt));
+268                     strcpy(pm_p->name,name);
+269                 }
+270                 else
+271                         printf("이동할 디렉터리가 없습니다");
+272             return;
+273         }
+274         while(head->right!=NULL)
+275         {
+276                 if((strcmp(head->name,name))==0)
+277                 {
+278                         cwd=head;                                // 현재 디렉터리의 정보를 수정해준다.
+279                         while(pm_p->next!=NULL)
+280                           pm_p=pm_p->next;
+281                           pm_p->next=(struct prompt *)calloc(1,sizeof(struct prompt)); // pwd 와 prompt 를 위해서 내용을 저장해 주는 구조체에 이름을 넣어주는 작업이다.
+282                         strcpy(pm_p->name,name);
+283
+284                         break;
+285                 }
+286         }
+287     }
+288 }
+289 void promp()
+290 {
+291     pf=&first;
+292     printf("[");
+293     while(pf->next!=NULL)
+294     { if(strcmp(pf->name,"/")==0)
+295             {}
+296     else
+297       printf("%s",pf->name);
+298       printf("/");
+299       pf=pf->next;
+300     }
+301     printf("]$ ");
+302
+303 }
+304 void mypwd(void)
+305 {
+306         int i=0;
+307         pf=&first;
+308         while(pf->next!=NULL)
+309         {
+310         if(strcmp(pf->name,"/")!=0)
+311          if(i>1)
+312           printf("/");
+313           printf("%s",pf->name);
+314           pf=pf->next;
+315           i++;
+316         }
+317
+318 }
+319
+320 void rmfile(struct b_tree *a,char *name)
+321 {
+322         if((strcmp(a->name,name))==0)
+323         {
+324                 p=a->left;
+325             if(p->right==NULL)
+326                 {free(p);
+327                  a->left=NULL;}
+328             else
+329             {a->left=p->right;
+330                 free(p);}
+331         }
+332         else
+333          {
+334             p=a->left;
+335            while((strcmp(p->name,name)!=0))
+336             {
+337                 prev=p;
+338                 p=p->right;
+339             }
+340            if(p->right==NULL)
+341                 free(p);
+342            else
+343             {
+344                 prev->right=p->right;
+345                 free(p);
+346             }
+347          }
+348 }
+349
+350 void myls(struct b_tree *a)
+351 {
+352         int i=0,c=0;
+353
+354         if(a->left==NULL)
+355                 return;
+356         else
+357         {
+358             p=a->left;
+359             if(p->right==NULL)
+360             {
+361                     printf("%s",p->name);
+362                     return;
+363             }
+364             while(p->right!=NULL)
+365             {
+366                 strcpy(name_save[i],p->name);
+367                 p=p->right;
+368                 i++;
+369             }
+370             strcpy(name_save[i],p->name);
+371
+372      qsort((void *)name_save,20,sizeof(name_save[0]),compare_word);
+373
+374         for(c=0;c<20;c++)
+375             if(strcmp(name_save,NULL)==0)
+376             {}
+377             else
+378         printf("%s\n",name_save[c]);
+379
+380         memset(name_save,0,sizeof(name_save));
+381     }
+382 }
+383
+384 int compare_word(const void *p,const void *q){
+385         return (strcmp((char *)p,(char *)q));
+386 }
+387
+388 void insert_name(struct b_tree *a,struct DATA_BLOCK data_block)
+389 {   int count=0,c,i;
+390     char name[5];
+391     p=a->left;
+392     for(i=0;i<128;i++)
+393         data_block.data[i]=NULL;
+394     while(p->right!=0)
+395     {  c=count;
+396         for(i=0;i<5;i++)
+397             name[i]=NULL;
+398         strcpy(name,p->name);
+399         for(i=0;count<c+5;count++)
+400         {
+401             data_block.data[count]=name[i];
+402         }
+403
+404     }
+405     c=count;
+406     for(i=0;i<5;i++)
+407         name[i]=NULL;
+408     strcpy(name,p->name);
+409     for(i=0;count<c+5;count++)
+410         data_block.data[count]=name[i];
+411 }
 
