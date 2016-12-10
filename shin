@@ -1,0 +1,232 @@
+#include<stdio.h>
+#include<stdlib.h>
+unsigned int buffer[1024];
+void cpfrom(char *);
+int find(unsigned char *num);
+typedef struct
+{
+	unsigned char data[128];				// 128DATA_BLOCK; 
+DATA_BLOCK data_block[1024];
+typedef struct 
+{
+	unsigned char bit_inode[64];		// i-node? (512)
+	unsigned char bit_data[128];	// data block(1024)
+}super;
+super supers;
+char check_bit(int num)
+{
+	int i;
+	int mask = 1 << (8-num);
+	return mask;
+}
+void bit_print(unsigned char a)
+{
+	int i;
+	int n = sizeof(int)*2;
+	int mask = 1 << (n-1);
+	for(i=1;i<=n;++i)
+	{
+		putchar(((a&mask)==0)?'0':'1');
+		a <<=1;
+		if(i%4==0)
+			printf(" ");
+	}
+}
+int find(unsigned char *num)
+{
+	int i;
+	for(i=0;i<128;i++)
+	{
+	if(num[i]<128)
+	{
+		return i*8+1;
+		break;
+	}
+	else if(num[i]-128<64)
+	{
+		return i*8+2;
+		break;
+	}
+	else if(num[i]-(128+64)<32)
+	{	
+		return i*8+3;
+		break;
+	}
+	else if(num[i]-(128+64+32)<16)
+	{	
+		return i*8+4;
+		break;
+	}
+	else if(num[i]-(128+64+32+16)<8)
+	{	
+		return i*8+5;
+		break;
+	}
+	else if(num[i]-(128+64+32+16+8)<4)
+	{
+		return i*8+6;
+		break;
+	}
+	else if(num[i]-(128+64+32+16+8+4)<2)
+	{
+		return i*8+7;
+		break;
+	}
+	else if(num[i]-(128+64+32+16+8+4+2)<1)
+	{
+		return i*8+8;
+		break;
+	}
+
+	}
+}
+void cpfrom(char *name)	
+{
+	int m;
+	char temp[128];
+	int f_size, i, num_block, num_block_remain, check, count=0;
+	FILE *ifp;
+	if((ifp=fopen(name, "rb"))!=NULL)
+	{
+		fseek(ifp, 0, SEEK_END);
+		f_size=ftell(ifp);
+		num_block=f_size/128;
+		num_block_remain=f_size%128;
+		rewind(ifp);
+		for(i=0; i<num_block; i++)
+		{
+			check=fread(&temp, sizeof(temp), 1, ifp);
+			m=find(supers.bit_data);
+			buffer[count]=m;
+			strcpy(data_block[m-1].data, temp);
+	   	   if(m%8!=0)
+				supers.bit_data[m/8]+=check_bit(m%8);
+	   	   else
+		   	   supers.bit_data[m/8-1]+=check_bit(8);
+			count++;
+		}
+		check=fread(&temp, num_block_remain, 1, ifp);
+		m=find(supers.bit_data);
+		buffer[count]=m;
+		strcpy(data_block[m-1].data, temp);
+	   	   if(m%8!=0)
+				supers.bit_data[m/8]+=check_bit(m%8);
+	   	   else
+		   	   supers.bit_data[m/8-1]+=check_bit(8);
+		fclose(ifp);
+	}
+}
+int write_single()
+{
+	unsigned int l, push;
+	int num, gap=0, count=0, m ,i=0;
+	int n = 10;
+	int mask=1 << (n-1);
+	m=find(supers.bit_data);
+	for(i=0;i<1024;i++)
+	{
+		if(buffer[i]==0)
+			break;
+		num++;
+	}
+	for(i=0;i<num;i++)
+	{
+		l=buffer[i];
+		if(l==0)
+			break;
+		if(i%4==0)
+		{
+			push=l;
+			push>>=2;
+			data_block[m-1].data[count+gap]+=push;
+			push=l;
+			push<<=6;
+			data_block[m-1].data[count+1+gap]+=push;
+		}
+		else if(i%4==1)
+		{
+			push=l;
+			push>>=4;
+			data_block[m-1].data[count+gap]+=push;
+			push=l;
+			push<<=4;
+			data_block[m-1].data[count+gap+1]+=push;
+		}
+		else if(i%4==2)
+		{
+			push=l;
+			push>>=6;
+			data_block[m-1].data[count+gap]+=push;
+			push=l;
+			push<<=2;
+			data_block[m-1].data[count+1+gap]+=push;
+		}
+		else if(i%4==3)
+		{
+			push=l;
+			push>>=8;
+			data_block[m-1].data[count+gap]+=push;
+			push=l;
+			data_block[m-1].data[count+1+gap]+=push;
+			gap++;
+		}
+		count++;
+		if(i>127)
+			break;
+	}
+ 	if(m%8!=0)
+		supers.bit_data[m/8]+=check_bit(m%8);
+	else
+	   	supers.bit_data[m/8-1]+=check_bit(8);
+	return m;
+}
+
+void read_single(int a)
+{
+	
+
+}
+
+int main()
+{
+	int a;
+	int com;
+	int j, g;
+	int single;
+	char cpfile[20];
+	while(1)
+	{
+	printf("1 :  2 : 3 : 4 :\n");
+	printf("what : ");
+	scanf("%d", &com);
+	
+	if(com==1)
+	{
+	printf("蹂듭궗???뚯씪 ?대쫫 : ");
+	scanf("%s", cpfile);
+	cpfrom(cpfile);
+	}
+
+	else if(com==2)
+	{
+	printf("鍮꾪듃??異쒕젰\n");
+	for(j=0;j<128;j=j+2)
+	{
+		bit_print(supers.bit_data[j]);
+		bit_print(supers.bit_data[j+1]);
+		g++;
+		if(g%2==0)
+			printf("\n");
+	}
+	}
+	else if(com==3)
+	{
+		single = write_single();
+		printf("%d\n", single);
+	}
+	else if(com==4)
+	{
+		read_single(single);
+	}
+	}
+}
